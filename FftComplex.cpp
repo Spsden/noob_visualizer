@@ -7,10 +7,11 @@
 #include <cstddef>
 #include <cstdint>
 #include <algorithm>
+#include <FftComplex.h>
 
+using std::cout;
 using std::uintmax_t;
 using std::vector;
-using std::cout;
 
 std::default_random_engine randGen((std::random_device())());
 
@@ -48,8 +49,6 @@ vector<std::complex<double>> createComplex(vector<double> input)
 
     // cout<<length<<"ye lengtj"<<std::endl;
     // cout<<powerOfTwo(input.size())<<"ye lengtj"<<std::endl;
-   
-    
 
     for (size_t i = 0; i < length; i++)
     {
@@ -68,20 +67,17 @@ vector<std::complex<double>> createComplex(vector<double> input)
 // data -> array that represents the vector fo complex samples
 // reverse -> 1 to calculate FFT and -1 to calculate reverse FFT
 
-void tranform(vector<std::complex<double>> &data, bool inverse)
+void Fft::transform(vector<std::complex<double>> &data, bool inverse)
 {
 
     size_t n = data.size();
 
     int sign = inverse ? -1 : 1;
     int levels = 0;
-	for (size_t temp = n; temp > 1U; temp >>= 1)
-		levels++;
-	if (static_cast<size_t>(1U) << levels != n)
-		throw std::domain_error("Length is not a power of 2");
-        
-
-    
+    for (size_t temp = n; temp > 1U; temp >>= 1)
+        levels++;
+    if (static_cast<size_t>(1U) << levels != n)
+        throw std::domain_error("Length is not a power of 2");
 
     for (size_t j = 0; j < n; j++)
     {
@@ -97,27 +93,20 @@ void tranform(vector<std::complex<double>> &data, bool inverse)
     for (size_t size = 2; size <= n; size <<= 1)
     {
         float expFactor = (-2.0 * M_PI / size) * sign;
-        std::complex<double> angle(cos(expFactor),sin(expFactor));
+        std::complex<double> angle(cos(expFactor), sin(expFactor));
 
         for (size_t s = 0; s < n; s += size)
         {
             std::complex<double> w(1);
-            for (size_t j = 0; j < size/2; j++)
+            for (size_t j = 0; j < size / 2; j++)
             {
-                std::complex<double> u = data[s+j] , v = data[s+j+size/2] * w;
-                data[s+j] = u + v;
-                data[s+j+size/2] = u-v;
+                std::complex<double> u = data[s + j], v = data[s + j + size / 2] * w;
+                data[s + j] = u + v;
+                data[s + j + size / 2] = u - v;
                 w *= angle;
             }
-            
         }
-        
     }
-    
-
-
-
-    
 }
 
 void demoTester()
@@ -131,9 +120,8 @@ void demoTester()
     }
 
     vector<std::complex<double>> v1 = createComplex(inputs);
-   
 
-    tranform(v1,false);
+    Fft::transform(v1, false);
 
     for (int i = 0; i < v1.size(); i++)
     {
@@ -141,11 +129,11 @@ void demoTester()
     }
 }
 
-int main()
-{
+// int main()
+// {
 
-    //std::cout << powerOfTwo(20);
-   // std::cout << checkpowerofTwo(3);
+//     // std::cout << powerOfTwo(20);
+//     // std::cout << checkpowerofTwo(3);
 
-    demoTester();
-}
+//     demoTester();
+// }
